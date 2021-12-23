@@ -1,7 +1,5 @@
 ﻿using Arkone.Datas;
 
-using Newtonsoft.Json;
-
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -31,7 +29,7 @@ namespace Arkone
             string sql = "";
             if ( firstLoad )
             {
-                sql = $"CREATE TABLE gamers ('steamid' BIGINT UNSIGNED, 'points' BIGINT, 'discordid' BIGINT UNSIGNED, 'nickname' VARCHAR(32))";
+                sql = $"CREATE TABLE gamers ('steamid' VARCHAR(32), 'points' BIGINT, 'discordid' VARCHAR(32), 'arkPlayerId' VARCHAR(32))";
                 SQLiteCommand sqlCmd = new SQLiteCommand( sql, conn );
                 sqlCmd.ExecuteNonQuery( );
 
@@ -42,35 +40,25 @@ namespace Arkone
 
             if ( !File.Exists( targetFile ) )
             {
-                DataConfig tmpConfig = new DataConfig
+                DataConfig tmpConfig = new DataConfig( );
+
+                string jsonString = JsonSerializer.Serialize( tmpConfig, new JsonSerializerOptions()
                 {
-                    discordBotSecret = "",
-                    ownerDiscordId = 0,
-                    playerCountEnabled = true,
-                    playerCountChannelDiscordId = 0,
-                    discordGuildId = 0,
-                    rewardsEnabled = true,
-                    rewardsCooldownSeconds = 360,
-                    rewardsAmount = 3,
-                    rconPrimaryAddress = "127.0.0.1:27025",
-                    rconSecondaryAddress = "127.0.0.1:27025",
-                    rconPassword = "password",
-                    rconQueryCooldownSeconds = 6,
-
-                };
-
-                string jsonString = JsonConvert.SerializeObject( tmpConfig );
+                    WriteIndented = true,
+                } );
 
                 File.WriteAllText( targetFile, jsonString );
 
                 Console.WriteLine( "Setup first time config. Please edit it and restart this program." );
                 Console.WriteLine( $"Config file is at:{ targetFile }" );
 
+                loadFailed = true;
+
                 return;
             }
 
             string jsonRawText = File.ReadAllText( targetFile );
-            config = JsonConvert.DeserializeObject<DataConfig>( jsonRawText );
+            config = JsonSerializer.Deserialize<DataConfig>( jsonRawText );
             if ( config != null )
             {
                 Console.WriteLine( "Loaded Configuration." );
@@ -89,10 +77,10 @@ namespace Arkone
             {
                 return new DataGamer
                 {
-                    steamId = (ulong)(long)reader[ "steamid" ],
+                    steamId = (string)reader[ "steamid" ],
                     points = (long)reader[ "points" ],
-                    discordId = (ulong)(long)reader[ "discordid" ],
-                    nickname = (string)reader[ "nickname" ],
+                    discordId = (string)reader[ "discordid" ],
+                    arkPlayerId = (string)reader[ "arkPlayerId" ],
                 };
             }
             return null;
@@ -110,10 +98,10 @@ namespace Arkone
             {
                 return new DataGamer
                 {
-                    steamId = (ulong)(long)reader[ "steamid" ],
+                    steamId = (string)reader[ "steamid" ],
                     points = (long)reader[ "points" ],
-                    discordId = (ulong)(long)reader[ "discordid" ],
-                    nickname = (string)reader[ "nickname" ],
+                    discordId = (string)reader[ "discordid" ],
+                    arkPlayerId = (string)reader[ "arkPlayerId" ],
                 };
             }
             return null;
@@ -133,13 +121,13 @@ namespace Arkone
 
                 if ( gamerExists )
                 {
-                    sql = $"UPDATE gamers SET steamid='{gamer.steamId}', points='{gamer.points}', discordid='{gamer.discordId}', nickname='{gamer.nickname}' WHERE steamid='{gamer.steamId}'";
+                    sql = $"UPDATE gamers SET steamid='{gamer.steamId.ToString()}', points='{gamer.points}', discordid='{gamer.discordId.ToString( )}', arkPlayerId='{gamer.arkPlayerId}' WHERE steamid='{gamer.steamId}'";
                     sqlCmd = new SQLiteCommand( sql, conn );
                     sqlCmd.ExecuteNonQuery( );
                 }
                 else
                 {
-                    sql = $"INSERT INTO gamers (steamid,points,discordid,nickname) VALUES ('{gamer.steamId}','{gamer.points}','{gamer.discordId}','{gamer.nickname}')";
+                    sql = $"INSERT INTO gamers (steamid,points,discordid,arkPlayerId) VALUES ('{gamer.steamId}','{gamer.points}','{gamer.discordId}','{gamer.arkPlayerId}')";
                     sqlCmd = new SQLiteCommand( sql, conn );
                     sqlCmd.ExecuteNonQuery( );
                 }
@@ -153,5 +141,7 @@ namespace Arkone
         const string DatabaseFile = "arkone.sqlite";
         public SQLiteConnection conn { get; private set; }
         public DataConfig config { get; private set; }
+        // Set to true to set if the configuration loading failed.
+        public bool loadFailed { get; private set; } = false;
     }
 }

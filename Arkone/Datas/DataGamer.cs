@@ -7,9 +7,9 @@ namespace Arkone
 {
     public class DataGamer
     {
-        public ulong steamId { get; set; }
-        public ulong discordId { get; set; }
+        public string steamId { get; set; }
+        public string discordId { get; set; }
         public long points { get; set; }
-        public string nickname { get; set; }
+        public string arkPlayerId { get; set; }
     }
 }

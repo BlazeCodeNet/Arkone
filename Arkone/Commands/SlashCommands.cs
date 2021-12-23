@@ -16,35 +16,40 @@ namespace Arkone.Commands
         [SlashCommand( "setbalance", "Sets TargetUser's balance." )]
         public async Task SetBalanceCmd( InteractionContext ctx, [Option( "user", "Discord Target" )] DiscordUser user, [Option( "points", "New Amount" )] long points )
         {
-            string respondText = "__NULL__";
+            string responseText = "__NULL__";
             await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
-
-            try
+            if ( ctx.Member.Roles.Any( x => x.Name == "Master" || x.Id.Equals( Program.data.config.ownerDiscordId ) ) )
             {
-                DataGamer gamer = Program.data.GetGamerByDiscordId( ctx.Member.Id );
+                responseText = $"Insufficient Permissions.";
+            }
+            else
+            {
+                try
+                {
+                    DataGamer gamer = Program.data.GetGamerByDiscordId( ctx.Member.Id );
 
-                if ( gamer != null )
-                {
-                    gamer.points = points;
-                    Program.data.ApplyGamer( gamer );
-                    respondText = $"{gamer.nickname}'s new balance is {gamer.points}!";
+                    if ( gamer != null )
+                    {
+                        gamer.points = points;
+                        Program.data.ApplyGamer( gamer );
+                        responseText = $"New balance is {gamer.points}!";
+                    }
+                    else
+                    {
+                        responseText = $"GameR doesnt exist :(";
+                    }
                 }
-                else
+                catch ( Exception ex )
                 {
-                    respondText = $"Gamer doesnt exist :(";
+                    Console.WriteLine( "SlashCommands#BalanceCommand crashed:" + ex.ToString( ) );
                 }
             }
-            catch ( Exception ex )
-            {
-                Console.WriteLine( "SlashCommands#BalanceCommand crashed:" + ex.ToString( ) );
-            }
-            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ respondText }" ) );
+            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ responseText }" ) );
         }
 
         [SlashCommand( "balance", "Gets your Gamer balance." )]
         public async Task BalanceCmd( InteractionContext ctx )
         {
-            Console.WriteLine( "Balance CMD Triggered..." );
             string respondText = "__NULL__";
             await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
 
@@ -58,7 +63,7 @@ namespace Arkone.Commands
                 }
                 else
                 {
-                    respondText = $"You dont currently have a GamerWallet setup :(";
+                    respondText = $"You dont currently have a GameR Wallet setup :(";
                 }
             }
             catch ( Exception ex )
@@ -68,7 +73,7 @@ namespace Arkone.Commands
             await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ respondText }" ) );
         }
         [SlashCommand( "addgamer", "Adds a gamer to the database." )]
-        public async Task AddGamerCmd( InteractionContext ctx, [Option( "user", "Discord Target" )] DiscordUser user, [Option( "steamId", "Target Steam64" )] string steamId )
+        public async Task AddGamerCmd( InteractionContext ctx, [Option( "user", "Discord Target" )] DiscordUser user, [Option( "steamId", "Target Steam64" )] string steamId, [Option("arkPlayerId", "Ark Player Id")] string arkPlayerId )
         {
             await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
             string responseText = "__NULL__";
@@ -82,12 +87,12 @@ namespace Arkone.Commands
                 {
                     DataGamer gamer = new DataGamer
                     {
-                        steamId = ulong.Parse( steamId ),
-                        points = 0,
-                        discordId = user.Id,
-                        nickname = user.Username,
+                        steamId = steamId,
+                        points = 50,
+                        discordId = user.Id.ToString(),
+                        arkPlayerId = arkPlayerId,
                     };
-                    responseText = $"Added gamer '{gamer.nickname}'({gamer.steamId}) to the database.";
+                    responseText = $"Added gamer {user.Mention} ({gamer.steamId})[{gamer.arkPlayerId}] to the database.";
                     Program.data.ApplyGamer( gamer );
                 }
                 catch ( Exception ex )

@@ -28,7 +28,10 @@ namespace Arkone
             try
             {
                 data = new Data( );
-                MainTask( ).GetAwaiter( ).GetResult( );
+                if(!data.loadFailed)
+                {
+                    MainTask( ).GetAwaiter( ).GetResult( );
+                }
             }
             catch(Exception ex)
             {
@@ -117,13 +120,13 @@ namespace Arkone
             try
             {
                 response = await ExecuteRCONAsync( data.config.rconPrimaryAddress, "listplayers" );
-                response = response.Trim( );
+                response = response.TrimStart( ).TrimEnd( );
                 if ( response.Contains( "0." ) )
                 {
                     int serverPlrCount = 1;
-                    if ( response.StartsWith( '\n' ) )
+                    if ( response.Contains( '\n' ) )
                     {
-                        serverPlrCount = response.Split( '\n' ).Length;
+                        serverPlrCount = response.Split( '\n' ).Length + 1;
                     }
                     playerCount += serverPlrCount;
 
@@ -149,13 +152,13 @@ namespace Arkone
             try
             {
                 response = await ExecuteRCONAsync( data.config.rconSecondaryAddress, "listplayers" );
-                response = response.Trim( );
+                response = response.TrimStart().TrimEnd();
                 if ( response.StartsWith( "0." ) )
                 {
                     int serverPlrCount = 1;
                     if ( response.Contains( '\n' ) )
                     {
-                        serverPlrCount = response.Split( '\n' ).Length;
+                        serverPlrCount = response.Split( '\n' ).Length + 1;
                     }
                     playerCount += serverPlrCount;
 
@@ -205,11 +208,11 @@ namespace Arkone
                 lastOnlinePlayers = foundPlayerSteamIds;
             }
 
-            if ( lastPlayerCount != playerCount )
+            if ( lastPlayerCount != playerCount && discordModifyStopwatch.ElapsedMilliseconds >= data.config.discordModifyCooldownSeconds * 1000 )
             {
                 Console.WriteLine( $"Updating TotalPlayerCount to {playerCount}" );
                 lastPlayerCount = playerCount;
-
+                
                 _ = playerCountChannel.ModifyAsync( x =>
                 {
                     x.Name = $"ONLINE PLAYERS: { playerCount.ToString( ) }";
@@ -221,6 +224,58 @@ namespace Arkone
         {
             // Grab the guild's Channels we want by their snowflake ID and store the instances
             playerCountChannel = guild.GetChannel( data.config.playerCountChannelDiscordId );
+        }
+
+        /// <summary>
+        /// Checks if steamId is on a server. Returns true if on primary, false on secondary, null on neither.
+        /// </summary>
+        /// <param name="steamId"></param>
+        /// <returns></returns>
+        public static async Task<bool?> IsSteamIdOnline( string steamId )
+        {
+            try
+            {
+                string response = "__NULL__";
+                response = await ExecuteRCONAsync( data.config.rconPrimaryAddress, "listplayers" );
+                response = response.Trim( );
+                if ( response.StartsWith( "0." ) )
+                {
+                    string[ ] respLines = response.Split( '\n' );
+                    foreach ( string l in respLines )
+                    {
+                        string[ ] splits = l.Split( ' ' );
+                        string lineId = splits[ splits.Length - 1 ];
+                        
+                        if(lineId == steamId)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                response = await ExecuteRCONAsync( data.config.rconSecondaryAddress, "listplayers" );
+                response = response.Trim( );
+                if ( response.StartsWith( "0." ) )
+                {
+                    string[ ] respLines = response.Split( '\n' );
+                    foreach ( string l in respLines )
+                    {
+                        string[ ] splits = l.Split( ' ' );
+                        string lineId = splits[ splits.Length - 1 ];
+
+                        if ( lineId == steamId )
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch ( Exception ex )
+            {
+                Console.WriteLine( $"IsSteamIdOnline Crashed:{ex.ToString( )}" );
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -245,10 +300,11 @@ namespace Arkone
         public static DiscordClient discord { get; private set; }
         public static DiscordGuild guild { get; private set; }
         public static DiscordChannel playerCountChannel { get; private set; }
+        public static Stopwatch discordModifyStopwatch { get; private set; } = Stopwatch.StartNew( );
 
         public static bool running { get; private set; } = false;
 
-        public static int lastPlayerCount { get; private set; } = -1;
+        public static int lastPlayerCount { get; private set; } = 0;
 
         public static Data data { get; private set; }
 
