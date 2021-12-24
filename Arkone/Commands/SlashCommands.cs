@@ -48,22 +48,44 @@ namespace Arkone.Commands
         }
 
         [SlashCommand( "balance", "Gets your Gamer balance." )]
-        public async Task BalanceCmd( InteractionContext ctx )
+        public async Task BalanceCmd( InteractionContext ctx, [Option("user", "Target DiscordUser")] DiscordUser? user = null )
         {
             string respondText = "__NULL__";
             await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
 
             try
             {
-                DataGamer gamer = Program.data.GetGamerByDiscordId( ctx.Member.Id );
-
-                if ( gamer != null )
+                DataGamer gamer;
+                if ( user == null )
                 {
-                    respondText = $"Your balance is {gamer.points}!";
+                    gamer = Program.data.GetGamerByDiscordId( ctx.Member.Id );
                 }
                 else
                 {
-                    respondText = $"You dont currently have a GameR Wallet setup :(";
+                    gamer = Program.data.GetGamerByDiscordId( user.Id );
+                }
+
+                if ( gamer != null )
+                {
+                    if ( user == null )
+                    {
+                        respondText = $"Your balance is {gamer.points}!";
+                    }
+                    else
+                    {
+                        respondText = $"{user.Mention} 's balance is {gamer.points}!";
+                    }
+                }
+                else
+                {
+                    if ( user == null )
+                    {
+                        respondText = $"You don't currently have a GameR Account.";
+                    }
+                    else
+                    {
+                        respondText = $"{user.Mention} doesn't have a GameR Account.";
+                    }
                 }
             }
             catch ( Exception ex )
@@ -103,6 +125,33 @@ namespace Arkone.Commands
             }
 
             await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( responseText ) );
+        }
+
+        [SlashCommand( "steamprofile", "Get Discord user's Steam profile URL" )]
+        public async Task GetSteamProfile( InteractionContext ctx, [Option( "user", "Discord Target" )] DiscordUser user )
+        {
+            string respondText = "__NULL__";
+            await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
+
+            try
+            {
+                DataGamer gamer;
+                gamer = Program.data.GetGamerByDiscordId( ctx.Member.Id );
+
+                if ( gamer != null )
+                {
+                    respondText = $"{user.Mention} 's steam account is ' http://steamcommunity.com/profiles/{gamer.steamId} '!";
+                }
+                else
+                {
+                    respondText = $"{user.Mention} doesn't have a GameR Account.";
+                }
+            }
+            catch ( Exception ex )
+            {
+                Console.WriteLine( "SlashCommands#BalanceCommand crashed:" + ex.ToString( ) );
+            }
+            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ respondText }" ) );
         }
     }
 }
