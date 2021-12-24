@@ -29,7 +29,7 @@ namespace Arkone
             string sql = "";
             if ( firstLoad )
             {
-                sql = $"CREATE TABLE gamers ('steamid' VARCHAR(32), 'points' BIGINT, 'discordid' VARCHAR(32), 'arkPlayerId' VARCHAR(32))";
+                sql = $"CREATE TABLE gamers ('steamid' VARCHAR(32), 'points' BIGINT, 'discordid' VARCHAR(32), 'arkPlayerId' VARCHAR(32), 'nickname' VARCHAR(28))";
                 SQLiteCommand sqlCmd = new SQLiteCommand( sql, conn );
                 sqlCmd.ExecuteNonQuery( );
 
