@@ -138,6 +138,32 @@ namespace Arkone
             }
         }
 
+        public void RemoveGamer(DataGamer gamer)
+        {
+
+            try
+            {
+                string sql = "";
+
+                sql = $"SELECT 'points' FROM gamers WHERE steamid='{gamer.steamId}'";
+                SQLiteCommand sqlCmd = new SQLiteCommand( sql, conn );
+                SQLiteDataReader reader = sqlCmd.ExecuteReader( );
+
+                bool gamerExists = reader.Read( );
+
+                if ( gamerExists )
+                {
+                    sql = $"DELETE FROM gamers WHERE 'discordid'='{gamer.discordId}'";
+                    sqlCmd = new SQLiteCommand( sql, conn );
+                    sqlCmd.ExecuteNonQuery( );
+                }
+            }
+            catch ( Exception ex )
+            {
+                Console.WriteLine( "RemoveGamer() Failed:" + ex.ToString( ) );
+            }
+        }
+
         const string DatabaseFile = "arkone.sqlite";
         public SQLiteConnection conn { get; private set; }
         public DataConfig config { get; private set; }

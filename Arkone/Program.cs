@@ -57,6 +57,7 @@ namespace Arkone
 
             SlashCommandsExtension slashExtension = discord.UseSlashCommands( );
             slashExtension.RegisterCommands<SlashCommands>( data.config.discordGuildId );
+            slashExtension.RegisterCommands<ShopCommands>( data.config.discordGuildId );
 
             // Connect the client to discord
             _ = discord.ConnectAsync( );

@@ -11,5 +11,6 @@ namespace Arkone
         public string discordId { get; set; }
         public long points { get; set; }
         public string arkPlayerId { get; set; }
+        public string nickname { get; set; }
     }
 }

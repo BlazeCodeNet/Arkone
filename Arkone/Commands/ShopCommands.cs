@@ -13,30 +13,6 @@ namespace Arkone.Commands
     public class ShopCommands : ApplicationCommandModule
     {
 
-        public enum ShopDisplayType
-        {
-            [ChoiceName("ARK GameR Points")]
-            arkPoints,
-        }
-        public enum ShopBuyType
-        {
-            [ChoiceName("Vulture")]
-            vulture,
-            [ChoiceName("Sinomacrops")]
-            sinomacrops,
-            [ChoiceName( "Otter" )]
-            otter,
-            [ChoiceName( "Ferox" )]
-            ferox,
-            [ChoiceName( "Mantis" )]
-            mantis,
-            [ChoiceName( "Fiber" )]
-            fiber,
-            [ChoiceName( "Paste" )]
-            paste,
-            [ChoiceName("Flare Gun")]
-            flaregun,
-        }
         [SlashCommand( "buy", "Triggers a shop display to be created." )]
         public async Task ShopBuyCmd( InteractionContext ctx, [Option( "item", "Item Name" )] ShopBuyType item )
         {
@@ -58,35 +34,57 @@ namespace Arkone.Commands
                     {
                         string curServAddr = isOnPrimary.Value ? Program.data.config.rconPrimaryAddress : Program.data.config.rconSecondaryAddress;
                         responseText = "Purchase Complete! Check your players inventory.";
-                        switch ( item )
+
+                        bool didBuy = false;
+                        if (item == ShopBuyType.vulture)
                         {
-                            case ShopBuyType.vulture:
+                            if(gamer.points >= 100)
+                            {
+                                didBuy = true;
                                 await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/ScorchedEarth/Dinos/Vulture/Vulture_Character_BP.Vulture_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
-                                break;
-                            case ShopBuyType.ferox:
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/Genesis/Dinos/Shapeshifter/Shapeshifter_Small/Shapeshifter_Small_Character_BP.Shapeshifter_Small_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
-                                break;
-                            case ShopBuyType.otter:
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/PrimalEarth/Dinos/Otter/Otter_Character_BP.Otter_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
-                                break;
-                            case ShopBuyType.sinomacrops:
+                                gamer.points -= 100;
+                                responseText = $"Vulture purchase complete.";
+                            }
+                        }
+                        else if(item == ShopBuyType.sinomacrops)
+                        {
+                            if(gamer.points >= 150)
+                            {
+                                didBuy = true;
                                 await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/LostIsland/Dinos/Sinomacrops/Sinomacrops_Character_BP.Sinomacrops_Character_BP_C 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
-                                break;
-                            case ShopBuyType.mantis:
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/ScorchedEarth/Dinos/Mantis/Mantis_Character_BP.Mantis_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
-                                break;
-                            case ShopBuyType.paste:
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat giveitemtoplayer {gamer.arkPlayerId} \"Blueprint'/Game/PrimalEarth/CoreBlueprints/Resources/PrimalItemResource_ChitinPaste.PrimalItemResource_ChitinPaste'\" 1000 0 0" );
-                                break;
-                            case ShopBuyType.flaregun:
+                                gamer.points -= 150;
+                                responseText = $"Sinomacrops purchase complete.";
+                            }
+                        }
+                        else if ( item == ShopBuyType.otter)
+                        {
+                            if(gamer.points >= 250)
+                            {
+                                didBuy = true;
+                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/PrimalEarth/Dinos/Otter/Otter_Character_BP.Otter_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
+                                gamer.points -= 250;
+                                responseText = $"Otter purchase complete.";
+                            }
+                        }
+                        else if ( item == ShopBuyType.ferox)
+                        {
+                            if(gamer.points >=350)
+                            {
+                                didBuy = true;
+                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/Genesis/Dinos/Shapeshifter/Shapeshifter_Small/Shapeshifter_Small_Character_BP.Shapeshifter_Small_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
+                                gamer.points -= 350;
+                                responseText = $"Ferox purchase complete.";
+                            }
+                        }
+                        else if ( item == ShopBuyType.flaregun)
+                        {
+                            if(gamer.points >= 50)
+                            {
+                                didBuy = true;
                                 await Program.ExecuteRCONAsync( curServAddr, $"admincheat giveitemtoplayer {gamer.arkPlayerId} \"Blueprint'/Game/Mods/LethalReusable/FlareGun_LR.FlareGun_LR'\" 1 0 0" );
-                                break;
-                            case ShopBuyType.fiber:
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat giveitemtoplayer {gamer.arkPlayerId} \"Blueprint'/Game/PrimalEarth/CoreBlueprints/Resources/PrimalItemResource_Fibers.PrimalItemResource_Fibers'\" 1000 0 0" );
-                                break;
-                            default:
-                                responseText = $"Invalid ShopBuyType! Please contact Stimz.";
-                                break;
+                                gamer.points -= 50;
+                                responseText = $"Flaregun purchase complete.";
+                            }
                         }
                     }
                 }
@@ -108,7 +106,7 @@ namespace Arkone.Commands
         {
             string responseText = "__NULL__";
             await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
-            if ( ctx.Member.Roles.Any( x => x.Name == "Master" || x.Id.Equals( Program.data.config.ownerDiscordId ) ) )
+            if ( !Provider.IsMasterUserAsync( ctx.Member ).GetAwaiter( ).GetResult( ) )
             {
                 responseText = $"Insufficient Permissions.";
             }
@@ -119,12 +117,10 @@ namespace Arkone.Commands
                     DiscordEmbed embed = new DiscordEmbedBuilder( ).
                         WithTitle( "__ARK GameR Points Shop__" ).
                         WithDescription( "ARK Points Shop" ).
-                        AddField( "*Shoulder Creatures*", "Vulture - 25p\nSinomacrops - 25p\nOtter - 50p\nFerox - 100p", true ).
-                        AddField( "*Other Creatures*", "Mantis - 200p\n-\n-\n-", true ).
-                        AddField( " ", " ", false ).
-                        AddField( "*Resources*", "Fiber(1000) - 20\nBio Toxin(100) - 25p\nCementing paste(1000) - 40p\nSilica Pearls(300) - 30p\nElement(5) - 100p", true ).
+                        AddField( "*Shoulder Creatures*", "Vulture - 100p\nSinomacrops - 150p\nOtter - 250p\nFerox - 350p", true ).
+                        AddField( "*Other*", "Flaregun - 50p\n- \n- \n- ", true ).
                         WithColor( DiscordColor.Orange ).
-                        WithFooter( "Type ``/buy NAME`` to purchase a item with GameR points!" );
+                        WithFooter( "Type \"/buy NAME\" to purchase a item with GameR points!" );
                     _ = channel.SendMessageAsync( embed );
                 }
                 catch ( Exception ex )
@@ -140,7 +136,7 @@ namespace Arkone.Commands
         {
             string responseText = "__NULL__";
             await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
-            if ( ctx.Member.Roles.Any( x => x.Name == "Master" || x.Id.Equals( Program.data.config.ownerDiscordId ) ) )
+            if ( !Provider.IsMasterUserAsync( ctx.Member ).GetAwaiter( ).GetResult( ) )
             {
                 responseText = $"Insufficient Permissions.";
             }
@@ -165,6 +161,25 @@ namespace Arkone.Commands
                 }
             }
             await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ responseText }" ) );
+        }
+
+        public enum ShopDisplayType
+        {
+            [ChoiceName( "ARK GameR Shop" )]
+            arkShop,
+        }
+        public enum ShopBuyType
+        {
+            [ChoiceName( "Vulture" )]
+            vulture,
+            [ChoiceName( "Sinomacrops" )]
+            sinomacrops,
+            [ChoiceName( "Otter" )]
+            otter,
+            [ChoiceName( "Ferox" )]
+            ferox,
+            [ChoiceName( "Flare Gun" )]
+            flaregun,
         }
     }
 }
