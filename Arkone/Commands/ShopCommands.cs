@@ -17,7 +17,7 @@ namespace Arkone.Commands
         public async Task ShopBuyCmd( InteractionContext ctx, [Option( "item", "Item Name" )] ShopBuyType item )
         {
             string responseText = "__NULL__";
-            await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource);
+            _ = ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource);
             try
             {
                 DataGamer gamer = Program.data.GetGamerByDiscordId(ctx.Member.Id);
@@ -99,11 +99,12 @@ namespace Arkone.Commands
             {
                 Console.WriteLine( "SlashCommands#BalanceCommand crashed:" + ex.ToString( ) );
             }
-            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ responseText }" ) );
+            _ = ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ responseText }" ) );
         }
         [SlashCommand( "shopdisplay", "Triggers a shop display to be created." )]
         public async Task ShopDisplayCmd( InteractionContext ctx, [Option( "channel", "Target Channel" )] DiscordChannel channel, [Option( "enum", "Type of shop" )] ShopDisplayType shopType )
         {
+            DiscordEmbed embed = null;
             string responseText = "__NULL__";
             await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
             if ( !Provider.IsMasterUserAsync( ctx.Member ).GetAwaiter( ).GetResult( ) )
@@ -114,7 +115,8 @@ namespace Arkone.Commands
             {
                 try
                 {
-                    DiscordEmbed embed = new DiscordEmbedBuilder( ).
+                    responseText = "__EMBED__";
+                    embed = new DiscordEmbedBuilder( ).
                         WithTitle( "__ARK GameR Points Shop__" ).
                         WithDescription( "ARK Points Shop" ).
                         AddField( "*Shoulder Creatures*", "Vulture - 100p\nSinomacrops - 150p\nOtter - 250p\nFerox - 350p", true ).
@@ -128,14 +130,21 @@ namespace Arkone.Commands
                     Console.WriteLine( "SlashCommands#BalanceCommand crashed:" + ex.ToString( ) );
                 }
             }
-            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ responseText }" ) );
+            if ( embed == null )
+            {
+                _ = ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ responseText }" ) );
+            }
+            else
+            {
+                _ = ctx.EditResponseAsync( new DiscordWebhookBuilder().AddEmbed( embed ) );
+            }
         }
 
         [SlashCommand( "clearbotchat", "Clears chat of all bot-sent messages" )]
         public async Task ClearBotChatCmd( InteractionContext ctx, [Option( "channel", "Target Channel" )] DiscordChannel channel )
         {
             string responseText = "__NULL__";
-            await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
+            _ = ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
             if ( !Provider.IsMasterUserAsync( ctx.Member ).GetAwaiter( ).GetResult( ) )
             {
                 responseText = $"Insufficient Permissions.";
@@ -160,7 +169,7 @@ namespace Arkone.Commands
                     Console.WriteLine( "SlashCommands#BalanceCommand crashed:" + ex.ToString( ) );
                 }
             }
-            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ responseText }" ) );
+            _ = ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ responseText }" ) );
         }
 
         public enum ShopDisplayType
