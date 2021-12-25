@@ -16,7 +16,7 @@ namespace Arkone.Commands
         public async Task BalanceCmd( InteractionContext ctx, [Option("user", "Target DiscordUser")] DiscordUser? user = null )
         {
             string respondText = "__NULL__";
-            await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
+            _ = ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
 
             try
             {
@@ -57,12 +57,12 @@ namespace Arkone.Commands
             {
                 Console.WriteLine( "SlashCommands#BalanceCommand crashed:" + ex.ToString( ) );
             }
-            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ respondText }" ) );
+            _ = ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ respondText }" ) );
         }
         [SlashCommand( "addgamer", "Adds a gamer to the database." )]
         public async Task AddGamerCmd( InteractionContext ctx, [Option( "user", "Discord Target" )] DiscordUser user, [Option( "steamId", "Target Steam64" )] string steamId, [Option("arkPlayerId", "Ark Player Id")] string arkPlayerId, [Option("nickname", "Nickname")] string nick )
         {
-            await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
+            _ = ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
             string responseText = "__NULL__";
             if ( !Provider.IsMasterUserAsync(ctx.Member).GetAwaiter().GetResult() )
             {
@@ -90,7 +90,7 @@ namespace Arkone.Commands
                 }
             }
 
-            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( responseText ) );
+            _ = ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( responseText ) );
         }
         [SlashCommand( "removegamer", "Modifies a GameR account" )]
         public async Task RemoveGamerCmd( InteractionContext ctx, [Option( "user", "Discord User" )] DiscordUser user)
@@ -129,7 +129,7 @@ namespace Arkone.Commands
         [SlashCommand("modifygamer", "Modifies a GameR account")]
         public async Task ModifyGamerCmd(InteractionContext ctx, [Option("user", "Discord User")] DiscordUser user, [Option("enum", "ModType")]ModifyGamerOptions modType, [Option("newValue", "New Value")] string newValue)
         {
-            await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
+            _ = ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
             string responseText = "__NULL__";
             if ( !Provider.IsMasterUserAsync( ctx.Member ).GetAwaiter( ).GetResult( ) )
             {
@@ -174,23 +174,31 @@ namespace Arkone.Commands
                 }
             }
 
-            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( responseText ) );
+            _ = ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( responseText ) );
         }
 
-        [SlashCommand( "steamprofile", "Get Discord user's Steam profile URL" )]
+        [SlashCommand( "profile", "Get Discord user's GamerR Profile" )]
         public async Task GetSteamProfile( InteractionContext ctx, [Option( "user", "Discord Target" )] DiscordUser user )
         {
             string respondText = "__NULL__";
-            await ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
+            _ = ctx.CreateResponseAsync( InteractionResponseType.DeferredChannelMessageWithSource );
 
+            DiscordEmbed embed = null;
             try
             {
                 DataGamer gamer;
                 gamer = Program.data.GetGamerByDiscordId( ctx.Member.Id );
-
                 if ( gamer != null )
                 {
-                    respondText = $"{user.Mention} 's steam account is ' http://steamcommunity.com/profiles/{gamer.steamId} '!";
+                    respondText = $"__EMBED__";
+                    embed = new DiscordEmbedBuilder( ).
+                        WithTitle( $"{gamer.nickname}'s GameR Profile" ).
+                        WithDescription( "*Level 1*" ).
+                        AddField( "***Steam ID***", $"{gamer.steamId}", true ).
+                        AddField( "***Steam URL***", $"http://steamcommunity.com/profiles/{gamer.steamId}", true ).
+                        AddField( "***ARK Id***", $"{gamer.arkPlayerId}", false ).
+                        AddField( $"***Points***", $"{gamer.points}", false ).
+                        WithColor( DiscordColor.Aquamarine );
                 }
                 else
                 {
@@ -201,7 +209,14 @@ namespace Arkone.Commands
             {
                 Console.WriteLine( "SlashCommands#BalanceCommand crashed:" + ex.ToString( ) );
             }
-            await ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ respondText }" ) );
+            if ( embed == null )
+            {
+                _ = ctx.EditResponseAsync( new DiscordWebhookBuilder( ).WithContent( $"{ respondText }" ) );
+            }
+            else
+            {
+                _ = ctx.EditResponseAsync( new DiscordWebhookBuilder().AddEmbed( embed ) );
+            }
         }
 
         public enum ModifyGamerOptions

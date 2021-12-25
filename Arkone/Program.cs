@@ -209,7 +209,7 @@ namespace Arkone
                 lastOnlinePlayers = foundPlayerSteamIds;
             }
 
-            if ( lastPlayerCount != playerCount && discordModifyStopwatch.ElapsedMilliseconds >= data.config.discordModifyCooldownSeconds * 1000 )
+            if ( lastPlayerCount != playerCount && discordModifyStopwatch.ElapsedMilliseconds > data.config.discordModifyCooldownSeconds * 1000 )
             {
                 Console.WriteLine( $"Updating TotalPlayerCount to {playerCount}" );
                 lastPlayerCount = playerCount;
