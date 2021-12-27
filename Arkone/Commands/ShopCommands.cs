@@ -41,7 +41,7 @@ namespace Arkone.Commands
                             if(gamer.points >= 100)
                             {
                                 didBuy = true;
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/ScorchedEarth/Dinos/Vulture/Vulture_Character_BP.Vulture_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
+                                await Program.ExecuteRCONAsync( curServAddr, $"scriptcommand spawndino_ds {gamer.steamId} /Game/ScorchedEarth/Dinos/Vulture/Vulture_Character_BP.Vulture_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
                                 gamer.points -= 100;
                                 responseText = $"Vulture purchase complete.";
                             }
@@ -51,7 +51,7 @@ namespace Arkone.Commands
                             if(gamer.points >= 150)
                             {
                                 didBuy = true;
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/LostIsland/Dinos/Sinomacrops/Sinomacrops_Character_BP.Sinomacrops_Character_BP_C 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
+                                await Program.ExecuteRCONAsync( curServAddr, $"scriptcommand spawndino_ds {gamer.steamId} /Game/LostIsland/Dinos/Sinomacrops/Sinomacrops_Character_BP.Sinomacrops_Character_BP_C 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
                                 gamer.points -= 150;
                                 responseText = $"Sinomacrops purchase complete.";
                             }
@@ -61,7 +61,7 @@ namespace Arkone.Commands
                             if(gamer.points >= 250)
                             {
                                 didBuy = true;
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/PrimalEarth/Dinos/Otter/Otter_Character_BP.Otter_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
+                                await Program.ExecuteRCONAsync( curServAddr, $"scriptcommand spawndino_ds {gamer.steamId} /Game/PrimalEarth/Dinos/Otter/Otter_Character_BP.Otter_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
                                 gamer.points -= 250;
                                 responseText = $"Otter purchase complete.";
                             }
@@ -71,7 +71,7 @@ namespace Arkone.Commands
                             if(gamer.points >=350)
                             {
                                 didBuy = true;
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat scriptcommand spawndino_ds {gamer.steamId} /Game/Genesis/Dinos/Shapeshifter/Shapeshifter_Small/Shapeshifter_Small_Character_BP.Shapeshifter_Small_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
+                                await Program.ExecuteRCONAsync( curServAddr, $"scriptcommand spawndino_ds {gamer.steamId} /Game/Genesis/Dinos/Shapeshifter/Shapeshifter_Small/Shapeshifter_Small_Character_BP.Shapeshifter_Small_Character_BP 220 0 0 0 1 ? 1 0 1 1 1 ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? Shop_Creature Remember_what_you_bought?" );
                                 gamer.points -= 350;
                                 responseText = $"Ferox purchase complete.";
                             }
@@ -81,10 +81,14 @@ namespace Arkone.Commands
                             if(gamer.points >= 50)
                             {
                                 didBuy = true;
-                                await Program.ExecuteRCONAsync( curServAddr, $"admincheat giveitemtoplayer {gamer.arkPlayerId} \"Blueprint'/Game/Mods/LethalReusable/FlareGun_LR.FlareGun_LR'\" 1 0 0" );
+                                await Program.ExecuteRCONAsync( curServAddr, $"giveitemtoplayer {gamer.arkPlayerId} \"Blueprint'/Game/Mods/LethalReusable/FlareGun_LR.FlareGun_LR'\" 1 0 0" );
                                 gamer.points -= 50;
                                 responseText = $"Flaregun purchase complete.";
                             }
+                        }
+                        if(didBuy)
+                        {
+                            Program.data.ApplyGamer( gamer );
                         }
                     }
                 }

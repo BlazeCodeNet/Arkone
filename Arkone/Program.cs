@@ -127,7 +127,7 @@ namespace Arkone
                     int serverPlrCount = 1;
                     if ( response.Contains( '\n' ) )
                     {
-                        serverPlrCount = response.Split( '\n' ).Length + 1;
+                        serverPlrCount = response.Split( '\n' ).Length;
                     }
                     playerCount += serverPlrCount;
 
@@ -159,7 +159,7 @@ namespace Arkone
                     int serverPlrCount = 1;
                     if ( response.Contains( '\n' ) )
                     {
-                        serverPlrCount = response.Split( '\n' ).Length + 1;
+                        serverPlrCount = response.Split( '\n' ).Length;
                     }
                     playerCount += serverPlrCount;
 
